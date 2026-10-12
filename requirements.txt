@@ -1,3 +1,2 @@
 streamlit>=1.40,<2
-scikit-learn==1.6.1
-numpy==1.26.5
+scikit-learn>=1.6.1,<1.7
