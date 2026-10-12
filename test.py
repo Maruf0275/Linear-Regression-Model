@@ -1,5 +1,7 @@
 import streamlit as st
 import pickle
+from pathlib import Path
+from typing import Any
 
 st.set_page_config(
     page_title="Placement Predictor",
@@ -8,8 +10,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-with open("placement.pkl", "rb") as f:
-    data_mode = pickle.load(f)
+
+@st.cache_resource
+def load_model() -> Any:
+    model_path = Path(__file__).with_name("placement.pkl")
+    if not model_path.is_file():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
+    with model_path.open("rb") as model_file:
+        return pickle.load(model_file)
+
+
+data_model = load_model()
 
 st.markdown(
     """
@@ -76,7 +88,7 @@ with left:
     )
     data = st.number_input("CGPA", min_value=0.0, max_value=10.0, value=6.63, step=0.01, format="%.2f")
     if st.button("Calculate placement score", type="primary"):
-        prediction = data_mode.predict([[data]])
+        prediction = data_model.predict([[data]])
         st.markdown(
             f'<div class="result"><div class="result-label">Predicted placement score</div><div class="result-value">{prediction[0]:.2f}</div></div>',
             unsafe_allow_html=True,
